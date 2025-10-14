@@ -9,7 +9,6 @@ import {
   Stack,
   Chip,
   Container,
-  useTheme
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -31,7 +30,6 @@ interface TokenData {
 }
 
 export const PasswordReset: React.FC = () => {
-  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
