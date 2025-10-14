@@ -7,16 +7,12 @@ import {
   Alert,
   CircularProgress,
   Stack,
-  Chip,
   TextField,
-  Divider,
   alpha
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
-  Launch as LaunchIcon,
-  ContentCopy as ContentCopyIcon,
   Lock as LockIcon,
   Visibility,
   VisibilityOff
@@ -39,8 +35,6 @@ export const PasswordReset: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tokens, setTokens] = useState<TokenData | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordUpdating, setPasswordUpdating] = useState(false);
@@ -71,24 +65,6 @@ export const PasswordReset: React.FC = () => {
     handlePasswordReset();
   }, []);
 
-  const handleCopyTokens = async () => {
-    if (!tokens) return;
-    
-    const tokenString = `Access Token: ${tokens.access_token}\nRefresh Token: ${tokens.refresh_token}`;
-    
-    try {
-      await navigator.clipboard.writeText(tokenString);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy tokens:', err);
-    }
-  };
-
-  const handleOpenExtension = () => {
-    const extensionId = 'dondapihdcdlpgkgfieobdeofbojhcjd';
-    window.open(`chrome-extension://${extensionId}/sidebar.html`, '_blank');
-  };
 
   const handleUpdatePassword = async () => {
     if (newPassword !== confirmPassword) {
