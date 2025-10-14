@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/surfmate/static/css/main.e6c13ad2.css",
+    "main.js": "/surfmate/static/js/main.7efb7b67.js",
+    "static/js/453.8929524f.chunk.js": "/surfmate/static/js/453.8929524f.chunk.js",
+    "index.html": "/surfmate/index.html",
+    "main.e6c13ad2.css.map": "/surfmate/static/css/main.e6c13ad2.css.map",
+    "main.7efb7b67.js.map": "/surfmate/static/js/main.7efb7b67.js.map",
+    "453.8929524f.chunk.js.map": "/surfmate/static/js/453.8929524f.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.7efb7b67.js"
+  ]
+}
