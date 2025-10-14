@@ -1,12 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Paper,
   Typography,
   Container
 } from '@mui/material';
+import { PasswordReset } from './PasswordReset';
 
 export const HomePage: React.FC = () => {
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+
+  useEffect(() => {
+    // Check URL parameters for GitHub Pages redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    
+    // Check if redirected from /passwordreset
+    const path = urlParams.get('path');
+    if (path && path.includes('/passwordreset')) {
+      setShowPasswordReset(true);
+      // Update URL to show /passwordreset (clean, without query params)
+      window.history.replaceState(null, '', '/passwordreset');
+      return;
+    }
+    
+    // Check for direct access with reset tokens
+    const hasPasswordResetTokens = urlParams.get('access_token') || hashParams.get('access_token');
+    if (hasPasswordResetTokens) {
+      setShowPasswordReset(true);
+    }
+  }, []);
+
+  if (showPasswordReset) {
+    return <PasswordReset />;
+  }
 
   return (
     <Box sx={{ 
