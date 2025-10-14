@@ -9,6 +9,8 @@ import {
   Stack,
   Chip,
   Container,
+  TextField,
+  Divider,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -35,6 +37,10 @@ export const PasswordReset: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [tokens, setTokens] = useState<TokenData | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordUpdating, setPasswordUpdating] = useState(false);
 
   useEffect(() => {
     const handlePasswordReset = async () => {
@@ -140,6 +146,46 @@ export const PasswordReset: React.FC = () => {
     window.open(`chrome-extension://${extensionId}/sidebar.html`, '_blank');
   };
 
+  const handleUpdatePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    setPasswordUpdating(true);
+    setError('');
+
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (updateError) {
+        setError(`Password update failed: ${updateError.message}`);
+      } else {
+        setError('');
+        setShowPasswordForm(false);
+        setNewPassword('');
+        setConfirmPassword('');
+        // Show success message
+        const successAlert = document.createElement('div');
+        successAlert.innerHTML = '✅ Password updated successfully!';
+        successAlert.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4caf50; color: white; padding: 12px 20px; border-radius: 8px; z-index: 9999;';
+        document.body.appendChild(successAlert);
+        setTimeout(() => document.body.removeChild(successAlert), 3000);
+      }
+    } catch (err) {
+      setError(`An error occurred: ${err.message || err}`);
+    } finally {
+      setPasswordUpdating(false);
+    }
+  };
+
   if (loading) {
     return (
       <Container maxWidth="sm">
@@ -237,6 +283,74 @@ export const PasswordReset: React.FC = () => {
               )}
             </>
           ) : null}
+
+          {/* Password Update Form */}
+          {success && !showPasswordForm && (
+            <>
+              <Divider sx={{ my: 3 }} />
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h6" gutterBottom>
+                  Set New Password
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Complete your password reset by setting a new password
+                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={() => setShowPasswordForm(true)}
+                  sx={{ borderRadius: 2, textTransform: 'none' }}
+                >
+                  Set New Password
+                </Button>
+              </Box>
+            </>
+          )}
+
+          {showPasswordForm && (
+            <Box sx={{ mt: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Create New Password
+              </Typography>
+              <Stack spacing={2}>
+                <TextField
+                  type="password"
+                  label="New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  variant="outlined"
+                  fullWidth
+                  disabled={passwordUpdating}
+                />
+                <TextField
+                  type="password"
+                  label="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  variant="outlined"
+                  fullWidth
+                  disabled={passwordUpdating}
+                />
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    onClick={handleUpdatePassword}
+                    disabled={passwordUpdating || !newPassword || !confirmPassword}
+                    sx={{ borderRadius: 2, textTransform: 'none' }}
+                  >
+                    {passwordUpdating ? <CircularProgress size={20} /> : 'Update Password'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setShowPasswordForm(false)}
+                    disabled={passwordUpdating}
+                    sx={{ borderRadius: 2, textTransform: 'none' }}
+                  >
+                    Cancel
+                  </Button>
+                </Stack>
+              </Stack>
+            </Box>
+          )}
 
           {/* Action Buttons */}
           <Stack spacing={2} sx={{ mt: 4 }}>
