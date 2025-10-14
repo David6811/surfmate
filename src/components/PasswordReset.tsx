@@ -180,7 +180,7 @@ export const PasswordReset: React.FC = () => {
         setTimeout(() => document.body.removeChild(successAlert), 3000);
       }
     } catch (err) {
-      setError(`An error occurred: ${err.message || err}`);
+      setError(`An error occurred: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setPasswordUpdating(false);
     }
