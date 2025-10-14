@@ -43,87 +43,18 @@ export const PasswordReset: React.FC = () => {
   const [passwordUpdating, setPasswordUpdating] = useState(false);
 
   useEffect(() => {
-    const handlePasswordReset = async () => {
-      try {
-        // Parse URL parameters (both search and hash)
-        const searchParams = new URLSearchParams(window.location.search);
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        
-        // Get tokens from either source
-        const accessToken = searchParams.get('access_token') || hashParams.get('access_token');
-        const refreshToken = searchParams.get('refresh_token') || hashParams.get('refresh_token');
-        const expiresAt = searchParams.get('expires_at') || hashParams.get('expires_at');
-        const tokenType = searchParams.get('token_type') || hashParams.get('token_type');
-        const type = searchParams.get('type') || hashParams.get('type');
-        
-        // Check for errors
-        const errorParam = searchParams.get('error') || hashParams.get('error');
-        const errorDescription = searchParams.get('error_description') || hashParams.get('error_description');
-        
-        console.log('Password reset URL params:', {
-          accessToken: accessToken ? 'present' : 'missing',
-          refreshToken: refreshToken ? 'present' : 'missing',
-          tokenType,
-          type,
-          error: errorParam,
-          errorDescription
-        });
-
-        if (errorParam) {
-          setError(`Password reset failed: ${errorDescription || errorParam}`);
-          setLoading(false);
-          return;
-        }
-
-        if (!accessToken || !refreshToken) {
-          setError('Invalid reset link: Missing authentication tokens');
-          setLoading(false);
-          return;
-        }
-
-        if (type !== 'recovery') {
-          setError('Invalid reset link: Wrong token type');
-          setLoading(false);
-          return;
-        }
-
-        // Store tokens for display
-        const tokenData: TokenData = {
-          access_token: accessToken,
-          refresh_token: refreshToken,
-          expires_at: expiresAt || undefined,
-          token_type: tokenType || undefined,
-          type: type || undefined
-        };
-        setTokens(tokenData);
-
-        // Verify the session with Supabase
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
-        });
-
-        if (sessionError) {
-          console.error('Session verification error:', sessionError);
-          setError(`Verification failed: ${sessionError.message || sessionError}`);
-          
-          // Still show success UI with tokens for manual use
-          setTokens(tokenData);
-          setSuccess(true);
-        } else {
-          console.log('✅ Password reset tokens verified successfully');
-          setSuccess(true);
-        }
-
-      } catch (err) {
-        console.error('Error processing password reset:', err);
-        setError('An unexpected error occurred while processing the reset link.');
-      } finally {
-        setLoading(false);
-      }
+    // Temporarily bypass token validation for page design
+    const demoTokenData: TokenData = {
+      access_token: 'demo_access_token_123',
+      refresh_token: 'demo_refresh_token_456',
+      expires_at: new Date(Date.now() + 3600000).toISOString(),
+      token_type: 'bearer',
+      type: 'recovery'
     };
-
-    handlePasswordReset();
+    
+    setTokens(demoTokenData);
+    setSuccess(true);
+    setLoading(false);
   }, []);
 
   const handleCopyTokens = async () => {
