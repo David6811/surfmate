@@ -3,19 +3,10 @@ import {
   Box,
   Paper,
   Typography,
-  Button,
-  Stack,
   Container
 } from '@mui/material';
-import {
-  Lock as LockIcon,
-  Login as LoginIcon,
-  VpnKey as VpnKeyIcon
-} from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 
 export const HomePage: React.FC = () => {
-  const navigate = useNavigate();
 
   return (
     <Box sx={{ 
@@ -126,109 +117,26 @@ export const HomePage: React.FC = () => {
           
           <Typography variant="h5" sx={{ 
             fontWeight: 600,
-            fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
+            fontSize: { xs: '1.3rem', sm: '1.5rem', md: '1.8rem' },
             color: '#475569',
-            mb: { xs: 2, sm: 3, md: 4 },
+            mb: { xs: 3, sm: 4, md: 5 },
             textShadow: '0 1px 2px rgba(0,0,0,0.1)'
           }}>
-            🌊 Your Smart Web Companion
+            Coming Soon
           </Typography>
           
           <Typography variant="body1" sx={{ 
-            fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
-            lineHeight: { xs: 1.4, sm: 1.5, md: 1.6 },
+            fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' },
+            lineHeight: { xs: 1.5, sm: 1.6, md: 1.7 },
             color: '#64748b',
-            maxWidth: { xs: 280, sm: 350, md: 400 },
+            maxWidth: { xs: 320, sm: 400, md: 450 },
             mx: 'auto',
             mb: { xs: 4, sm: 5, md: 6 },
             textAlign: 'center',
             fontWeight: 500
           }}>
-            Enhance your browsing experience with intelligent features, 
-            seamless password management, and smart web navigation.
+            🌊 We're working hard to bring you the ultimate web browsing companion. Stay tuned!
           </Typography>
-
-          {/* Action Buttons */}
-          <Stack spacing={3} sx={{ maxWidth: 300, mx: 'auto' }}>
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<LoginIcon />}
-              sx={{ 
-                borderRadius: 3,
-                textTransform: 'none',
-                fontWeight: 700,
-                fontSize: '1.1rem',
-                background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
-                py: 2,
-                boxShadow: '0 8px 24px rgba(14, 165, 233, 0.3)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                  boxShadow: '0 12px 32px rgba(14, 165, 233, 0.4)',
-                  transform: 'translateY(-2px)'
-                }
-              }}
-            >
-              Sign In to Extension
-            </Button>
-
-            <Button
-              variant="outlined"
-              size="large"
-              startIcon={<VpnKeyIcon />}
-              onClick={() => navigate('/passwordreset')}
-              sx={{ 
-                borderRadius: 3,
-                textTransform: 'none',
-                fontWeight: 600,
-                fontSize: '1rem',
-                borderColor: '#64748b',
-                color: '#64748b',
-                py: 1.8,
-                borderWidth: 2,
-                '&:hover': {
-                  borderColor: '#475569',
-                  color: '#475569',
-                  backgroundColor: 'rgba(100, 116, 139, 0.08)',
-                  transform: 'translateY(-1px)'
-                }
-              }}
-            >
-              Reset Password
-            </Button>
-
-            <Button
-              variant="text"
-              size="large"
-              startIcon={<LockIcon />}
-              sx={{ 
-                borderRadius: 3,
-                textTransform: 'none',
-                color: '#64748b',
-                fontWeight: 500,
-                '&:hover': {
-                  backgroundColor: 'rgba(100, 116, 139, 0.08)',
-                }
-              }}
-            >
-              Security & Privacy
-            </Button>
-          </Stack>
-
-          {/* Footer Info */}
-          <Box sx={{ 
-            mt: { xs: 5, sm: 6, md: 8 }, 
-            pt: { xs: 3, sm: 4, md: 4 },
-            borderTop: '1px solid rgba(100, 116, 139, 0.2)'
-          }}>
-            <Typography variant="body2" sx={{ 
-              color: '#64748b',
-              fontSize: '0.85rem',
-              fontWeight: 500
-            }}>
-              🏄‍♂️ Surf the web smarter with SurfMate
-            </Typography>
-          </Box>
         </Paper>
       </Container>
 
