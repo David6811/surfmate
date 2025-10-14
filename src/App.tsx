@@ -1,6 +1,8 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { HomePage } from './components/HomePage';
 import { PasswordReset } from './components/PasswordReset';
 
 // Material Design 3 inspired theme
@@ -111,7 +113,12 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <PasswordReset />
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/passwordreset" element={<PasswordReset />} />
+        </Routes>
+      </Router>
     </ThemeProvider>
   );
 }
