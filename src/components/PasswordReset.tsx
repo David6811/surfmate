@@ -49,84 +49,23 @@ export const PasswordReset: React.FC = () => {
   const [passwordUpdateSuccess, setPasswordUpdateSuccess] = useState(false);
 
   useEffect(() => {
+    // Skip token validation for now, focus on page design
     const handlePasswordReset = async () => {
-      try {
-        // Parse URL parameters (both search and hash)
-        const searchParams = new URLSearchParams(window.location.search);
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        
-        // Get tokens from either source
-        const accessToken = searchParams.get('access_token') || hashParams.get('access_token');
-        const refreshToken = searchParams.get('refresh_token') || hashParams.get('refresh_token');
-        const expiresAt = searchParams.get('expires_at') || hashParams.get('expires_at');
-        const tokenType = searchParams.get('token_type') || hashParams.get('token_type');
-        const type = searchParams.get('type') || hashParams.get('type');
-        
-        // Check for errors
-        const errorParam = searchParams.get('error') || hashParams.get('error');
-        const errorDescription = searchParams.get('error_description') || hashParams.get('error_description');
-        
-        console.log('Password reset URL params:', {
-          accessToken: accessToken ? 'present' : 'missing',
-          refreshToken: refreshToken ? 'present' : 'missing',
-          tokenType,
-          type,
-          error: errorParam,
-          errorDescription
-        });
-
-        if (errorParam) {
-          setError(`Password reset failed: ${errorDescription || errorParam}`);
-          setLoading(false);
-          return;
-        }
-
-        if (!accessToken || !refreshToken) {
-          setError('Invalid reset link: Missing authentication tokens');
-          setLoading(false);
-          return;
-        }
-
-        if (type !== 'recovery') {
-          setError('Invalid reset link: Wrong token type');
-          setLoading(false);
-          return;
-        }
-
-        // Store tokens for display
-        const tokenData: TokenData = {
-          access_token: accessToken,
-          refresh_token: refreshToken,
-          expires_at: expiresAt || undefined,
-          token_type: tokenType || undefined,
-          type: type || undefined
-        };
-        setTokens(tokenData);
-
-        // Verify the session with Supabase
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
-        });
-
-        if (sessionError) {
-          console.error('Session verification error:', sessionError);
-          setError(`Verification failed: ${sessionError.message || sessionError}`);
-          
-          // Still show success UI with tokens for manual use
-          setTokens(tokenData);
-          setSuccess(true);
-        } else {
-          console.log('✅ Password reset tokens verified successfully');
-          setSuccess(true);
-        }
-
-      } catch (err) {
-        console.error('Error processing password reset:', err);
-        setError('An unexpected error occurred while processing the reset link.');
-      } finally {
+      setLoading(true);
+      
+      // Simulate loading for design preview
+      setTimeout(() => {
+        setSuccess(true);
         setLoading(false);
-      }
+        
+        // Mock token data for design preview
+        setTokens({
+          access_token: 'mock_access_token_for_design',
+          refresh_token: 'mock_refresh_token_for_design',
+          token_type: 'bearer',
+          type: 'recovery'
+        });
+      }, 1500);
     };
 
     handlePasswordReset();
@@ -312,53 +251,77 @@ export const PasswordReset: React.FC = () => {
           transform: 'perspective(800px) rotateX(5deg)',
         }}
       >
-        {/* Header with SurfMate Logo */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
+        {/* Header with SurfMate Logo - Same as Login Page */}
+        <Box sx={{ textAlign: 'center', mb: { xs: 3, sm: 4, md: 4 } }}>
+          {/* SurfMate Animated Logo */}
           <Box sx={{
             display: 'flex',
             justifyContent: 'center',
-            mb: 3
+            mb: { xs: 4, sm: 5, md: 5 }
           }}>
             <Box
+              component="img"
+              src={`${process.env.PUBLIC_URL || ''}/icons/icon128.png`}
+              alt="SurfMate Logo"
               sx={{
-                width: '70px',
-                height: '70px',
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                width: { xs: '60px', sm: '70px', md: '75px' },
+                height: { xs: '60px', sm: '70px', md: '75px' },
+                borderRadius: { xs: '14px', sm: '16px', md: '18px' },
                 boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
                 transition: 'transform 0.3s ease-in-out',
+                cursor: 'pointer',
+                // Remove white background
+                filter: 'contrast(1.2) brightness(0.9)',
+                mixBlendMode: 'multiply',
+                backgroundColor: 'transparent',
                 '&:hover': {
                   transform: 'scale(1.1) rotate(2deg)',
                   boxShadow: '0 12px 32px rgba(0, 0, 0, 0.2)',
                 }
               }}
-            >
-              <LockIcon sx={{ color: 'white', fontSize: 32 }} />
-            </Box>
+            />
           </Box>
           
           <Typography variant="h3" gutterBottom sx={{ 
             fontWeight: 900, 
-            mb: 1.5,
+            mb: { xs: 1, sm: 1.5, md: 1.5 },
             fontSize: { xs: '1.5rem', sm: '1.7rem', md: '1.8rem' },
             background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+            letterSpacing: '0.5px'
           }}>
             SurfMate
           </Typography>
           
           <Typography variant="h6" sx={{ 
-            color: '#475569',
             fontWeight: 600,
-            fontSize: { xs: '1rem', sm: '1.1rem' }
+            fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' },
+            color: '#475569',
+            mb: { xs: 0.5, sm: 1, md: 1 },
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 0.5,
+            textShadow: '0 1px 2px rgba(0,0,0,0.1)'
           }}>
-            🔐 Password Reset
+            <LockIcon sx={{ fontSize: { xs: 14, sm: 16, md: 17 }, color: '#64748b' }} />
+            Password Reset
+          </Typography>
+          
+          <Typography variant="body2" sx={{ 
+            fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.82rem' },
+            lineHeight: { xs: 1.2, sm: 1.3, md: 1.4 },
+            color: '#64748b',
+            maxWidth: { xs: 220, sm: 260, md: 280 },
+            mx: 'auto',
+            textAlign: 'center',
+            fontWeight: 500,
+            textShadow: '0 1px 1px rgba(0,0,0,0.1)'
+          }}>
+            Set a new password for your SurfMate account
           </Typography>
         </Box>
 
@@ -378,7 +341,7 @@ export const PasswordReset: React.FC = () => {
               {error}
             </Typography>
           </Alert>
-        ) : success ? (
+        ) : passwordUpdateSuccess ? (
           <Alert 
             severity="success" 
             icon={<CheckCircleIcon />}
@@ -390,75 +353,14 @@ export const PasswordReset: React.FC = () => {
             }}
           >
             <Typography variant="body1" sx={{ fontWeight: 500 }}>
-              {passwordUpdateSuccess 
-                ? "🎉 Password updated successfully! You can now use your new password to sign in."
-                : "✅ Password reset successful! Your authentication tokens have been verified."
-              }
+              🎉 Password updated successfully! You can now use your new password to sign in.
             </Typography>
           </Alert>
         ) : null}
 
-        {/* Token Information */}
-        {tokens && success && !passwordUpdateSuccess && (
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600, color: '#334155' }}>
-              Authentication Details:
-            </Typography>
-            <Stack spacing={1}>
-              <Chip 
-                label={`Token Type: ${tokens.token_type || 'bearer'}`}
-                variant="outlined"
-                size="small"
-                sx={{ backgroundColor: alpha('#0ea5e9', 0.1) }}
-              />
-              <Chip 
-                label={`Type: ${tokens.type || 'recovery'}`}
-                variant="outlined" 
-                size="small"
-                sx={{ backgroundColor: alpha('#0ea5e9', 0.1) }}
-              />
-              {tokens.expires_at && (
-                <Chip 
-                  label={`Expires: ${new Date(parseInt(tokens.expires_at) * 1000).toLocaleString()}`}
-                  variant="outlined"
-                  size="small"
-                  sx={{ backgroundColor: alpha('#0ea5e9', 0.1) }}
-                />
-              )}
-            </Stack>
-          </Box>
-        )}
 
-        {/* Password Update Form */}
-        {success && !showPasswordForm && !passwordUpdateSuccess && (
-          <>
-            <Divider sx={{ my: 3, borderColor: '#cbd5e1' }} />
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" gutterBottom sx={{ color: '#334155', fontWeight: 600 }}>
-                🔑 Set New Password
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 3, color: '#64748b' }}>
-                Complete your password reset by setting a new password
-              </Typography>
-              <Button
-                variant="contained"
-                onClick={() => setShowPasswordForm(true)}
-                sx={{ 
-                  borderRadius: 3, 
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
-                  px: 4,
-                  py: 1.5
-                }}
-              >
-                Set New Password
-              </Button>
-            </Box>
-          </>
-        )}
 
-        {showPasswordForm && (
+        {success && (
           <Box sx={{ mt: 3 }}>
             <Typography variant="h6" gutterBottom sx={{ color: '#334155', fontWeight: 600 }}>
               Create New Password
@@ -518,92 +420,25 @@ export const PasswordReset: React.FC = () => {
                   }
                 }}
               />
-              <Stack direction="row" spacing={2}>
-                <Button
-                  variant="contained"
-                  onClick={handleUpdatePassword}
-                  disabled={passwordUpdating || !newPassword || !confirmPassword}
-                  sx={{ 
-                    borderRadius: 2, 
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    flex: 1
-                  }}
-                >
-                  {passwordUpdating ? <CircularProgress size={20} color="inherit" /> : 'Update Password'}
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => setShowPasswordForm(false)}
-                  disabled={passwordUpdating}
-                  sx={{ 
-                    borderRadius: 2, 
-                    textTransform: 'none',
-                    borderColor: '#64748b',
-                    color: '#64748b'
-                  }}
-                >
-                  Cancel
-                </Button>
-              </Stack>
+              <Button
+                variant="contained"
+                onClick={handleUpdatePassword}
+                disabled={passwordUpdating || !newPassword || !confirmPassword}
+                fullWidth
+                sx={{ 
+                  borderRadius: 2, 
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  py: 1.5
+                }}
+              >
+                {passwordUpdating ? <CircularProgress size={20} color="inherit" /> : 'Update Password'}
+              </Button>
             </Stack>
           </Box>
         )}
 
-        {/* Action Buttons */}
-        <Stack spacing={2} sx={{ mt: 4 }}>
-          {(success || passwordUpdateSuccess) && (
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<LaunchIcon />}
-              onClick={handleOpenExtension}
-              sx={{ 
-                borderRadius: 3,
-                textTransform: 'none',
-                fontWeight: 600,
-                background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                py: 1.5
-              }}
-            >
-              Open SurfMate Extension
-            </Button>
-          )}
-
-          {tokens && !passwordUpdateSuccess && (
-            <Button
-              variant="outlined"
-              size="large"
-              startIcon={<ContentCopyIcon />}
-              onClick={handleCopyTokens}
-              disabled={copied}
-              sx={{ 
-                borderRadius: 3,
-                textTransform: 'none',
-                fontWeight: 500,
-                borderColor: '#64748b',
-                color: '#64748b',
-                py: 1.5
-              }}
-            >
-              {copied ? '✅ Tokens Copied!' : 'Copy Tokens to Clipboard'}
-            </Button>
-          )}
-
-          <Button
-            variant="text"
-            size="large"
-            onClick={() => window.close()}
-            sx={{ 
-              borderRadius: 3,
-              textTransform: 'none',
-              color: '#64748b'
-            }}
-          >
-            Close Window
-          </Button>
-        </Stack>
 
         {/* Instructions */}
         {(success || passwordUpdateSuccess) && (
