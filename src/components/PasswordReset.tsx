@@ -101,7 +101,11 @@ export const PasswordReset: React.FC = () => {
 
         if (sessionError) {
           console.error('Session verification error:', sessionError);
-          setError('Failed to verify reset tokens. Please try requesting a new password reset.');
+          setError(`Verification failed: ${sessionError.message || sessionError}`);
+          
+          // Still show success UI with tokens for manual use
+          setTokens(tokenData);
+          setSuccess(true);
         } else {
           console.log('✅ Password reset tokens verified successfully');
           setSuccess(true);
