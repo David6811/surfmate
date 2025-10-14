@@ -34,7 +34,7 @@ export const PasswordReset: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tokens, setTokens] = useState<TokenData | null>(null);
+  const [, setTokens] = useState<TokenData | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordUpdating, setPasswordUpdating] = useState(false);
