@@ -7,16 +7,12 @@ import {
   Alert,
   CircularProgress,
   Stack,
-  Chip,
   TextField,
-  Divider,
   alpha
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
-  Launch as LaunchIcon,
-  ContentCopy as ContentCopyIcon,
   Lock as LockIcon,
   Visibility,
   VisibilityOff
@@ -39,8 +35,6 @@ export const PasswordReset: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tokens, setTokens] = useState<TokenData | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordUpdating, setPasswordUpdating] = useState(false);
@@ -71,25 +65,6 @@ export const PasswordReset: React.FC = () => {
     handlePasswordReset();
   }, []);
 
-  const handleCopyTokens = async () => {
-    if (!tokens) return;
-    
-    const tokenString = `Access Token: ${tokens.access_token}\nRefresh Token: ${tokens.refresh_token}`;
-    
-    try {
-      await navigator.clipboard.writeText(tokenString);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy tokens:', err);
-    }
-  };
-
-  const handleOpenExtension = () => {
-    const extensionId = 'dondapihdcdlpgkgfieobdeofbojhcjd';
-    window.open(`chrome-extension://${extensionId}/sidebar.html`, '_blank');
-  };
-
   const handleUpdatePassword = async () => {
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match');
@@ -113,7 +88,6 @@ export const PasswordReset: React.FC = () => {
         setError(`Password update failed: ${updateError.message}`);
       } else {
         setPasswordUpdateSuccess(true);
-        setShowPasswordForm(false);
         setNewPassword('');
         setConfirmPassword('');
       }
@@ -251,9 +225,9 @@ export const PasswordReset: React.FC = () => {
           transform: 'perspective(800px) rotateX(5deg)',
         }}
       >
-        {/* Header with SurfMate Logo - Same as Login Page */}
+        {/* Header with SurfMate Logo */}
         <Box sx={{ textAlign: 'center', mb: { xs: 3, sm: 4, md: 4 } }}>
-          {/* SurfMate Animated Logo */}
+          {/* SurfMate Logo */}
           <Box sx={{
             display: 'flex',
             justifyContent: 'center',
@@ -270,7 +244,6 @@ export const PasswordReset: React.FC = () => {
                 boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
                 transition: 'transform 0.3s ease-in-out',
                 cursor: 'pointer',
-                // Remove white background
                 filter: 'contrast(1.2) brightness(0.9)',
                 mixBlendMode: 'multiply',
                 backgroundColor: 'transparent',
@@ -358,8 +331,7 @@ export const PasswordReset: React.FC = () => {
           </Alert>
         ) : null}
 
-
-
+        {/* Password Update Form */}
         {success && (
           <Box sx={{ mt: 3 }}>
             <Typography variant="h6" gutterBottom sx={{ color: '#334155', fontWeight: 600 }}>
@@ -438,7 +410,6 @@ export const PasswordReset: React.FC = () => {
             </Stack>
           </Box>
         )}
-
 
         {/* Instructions */}
         {(success || passwordUpdateSuccess) && (
