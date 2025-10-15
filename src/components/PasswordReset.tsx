@@ -47,95 +47,112 @@ export const PasswordReset: React.FC = () => {
       setLoading(true);
       
       try {
-        // Parse URL parameters for auth tokens
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessToken = urlParams.get('access_token');
-        const refreshToken = urlParams.get('refresh_token');
-        const tokenType = urlParams.get('token_type');
-        const type = urlParams.get('type');
+        console.log('🔗 Current URL:', window.location.href);
+        console.log('🔗 URL search:', window.location.search);
+        console.log('🔗 URL hash:', window.location.hash);
         
-        console.log('🔗 Password reset URL parameters:', {
+        // First, check if we have an existing session (user was redirected from email verification)
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (session) {
+          console.log('✅ Found existing session:', session);
+          setTokens({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token || '',
+            token_type: 'bearer',
+            type: 'recovery'
+          });
+          setSuccess(true);
+          setLoading(false);
+          return;
+        }
+        
+        // If no session, try to handle auth state change
+        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log('🔗 Auth state change:', event, session);
+          
+          if (event === 'PASSWORD_RECOVERY' && session) {
+            console.log('✅ Password recovery session established:', session);
+            setTokens({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token || '',
+              token_type: 'bearer',
+              type: 'recovery'
+            });
+            setSuccess(true);
+            setLoading(false);
+            return;
+          }
+          
+          if (event === 'SIGNED_IN' && session) {
+            console.log('✅ User signed in for password reset:', session);
+            setTokens({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token || '',
+              token_type: 'bearer',
+              type: 'recovery'
+            });
+            setSuccess(true);
+            setLoading(false);
+            return;
+          }
+        });
+        
+        // Parse URL parameters for auth tokens (fallback)
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        
+        const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
+        const tokenType = urlParams.get('token_type') || hashParams.get('token_type');
+        const type = urlParams.get('type') || hashParams.get('type');
+        
+        console.log('🔗 Extracted tokens:', {
           accessToken: accessToken ? 'present' : 'missing',
           refreshToken: refreshToken ? 'present' : 'missing',
           tokenType,
           type
         });
         
-        if (!accessToken || !refreshToken) {
-          // Check if we have tokens in the hash (some auth providers use hash)
-          const hashParams = new URLSearchParams(window.location.hash.substring(1));
-          const hashAccessToken = hashParams.get('access_token');
-          const hashRefreshToken = hashParams.get('refresh_token');
-          const hashTokenType = hashParams.get('token_type');
-          const hashType = hashParams.get('type');
-          
-          console.log('🔗 Password reset hash parameters:', {
-            hashAccessToken: hashAccessToken ? 'present' : 'missing',
-            hashRefreshToken: hashRefreshToken ? 'present' : 'missing',
-            hashTokenType,
-            hashType
-          });
-          
-          if (!hashAccessToken || !hashRefreshToken) {
-            setError('Invalid or missing authentication tokens. Please request a new password reset.');
-            setLoading(false);
-            return;
-          }
-          
-          // Use hash tokens
-          const tokens = {
-            access_token: hashAccessToken,
-            refresh_token: hashRefreshToken,
-            token_type: hashTokenType || 'bearer',
-            type: hashType || 'recovery'
-          };
-          
-          setTokens(tokens);
-          
+        if (accessToken && refreshToken) {
           // Set the session with Supabase
-          const { data, error: sessionError } = await supabase.auth.setSession({
-            access_token: hashAccessToken,
-            refresh_token: hashRefreshToken
-          });
-          
-          if (sessionError) {
-            console.error('❌ Session error:', sessionError);
-            setError(`Authentication failed: ${sessionError.message}`);
-            setLoading(false);
-            return;
-          }
-          
-          console.log('✅ Session established:', data);
-          setSuccess(true);
-          setLoading(false);
-        } else {
-          // Use query tokens
-          const tokens = {
-            access_token: accessToken,
-            refresh_token: refreshToken,
-            token_type: tokenType || 'bearer',
-            type: type || 'recovery'
-          };
-          
-          setTokens(tokens);
-          
-          // Set the session with Supabase
-          const { data, error: sessionError } = await supabase.auth.setSession({
+          const { data, error: setSessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
           });
           
-          if (sessionError) {
-            console.error('❌ Session error:', sessionError);
-            setError(`Authentication failed: ${sessionError.message}`);
+          if (setSessionError) {
+            console.error('❌ Session error:', setSessionError);
+            setError(`Authentication failed: ${setSessionError.message}`);
             setLoading(false);
             return;
           }
           
-          console.log('✅ Session established:', data);
+          console.log('✅ Session established from tokens:', data);
+          setTokens({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            token_type: tokenType || 'bearer',
+            type: type || 'recovery'
+          });
           setSuccess(true);
           setLoading(false);
+          return;
         }
+        
+        // If no tokens found, wait a bit for potential auth state changes
+        setTimeout(() => {
+          if (!success) {
+            setError('Invalid or missing authentication tokens. Please request a new password reset.');
+            setLoading(false);
+          }
+        }, 3000);
+        
+        // Cleanup auth listener
+        return () => {
+          authListener.subscription.unsubscribe();
+        };
+        
       } catch (err) {
         console.error('❌ Password reset error:', err);
         setError(`An error occurred: ${err instanceof Error ? err.message : String(err)}`);
@@ -144,7 +161,7 @@ export const PasswordReset: React.FC = () => {
     };
 
     handlePasswordReset();
-  }, []);
+  }, [success]);
 
   const handleUpdatePassword = async () => {
     if (newPassword !== confirmPassword) {
