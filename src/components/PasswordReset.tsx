@@ -52,7 +52,7 @@ export const PasswordReset: React.FC = () => {
         console.log('🔗 URL hash:', window.location.hash);
         
         // First, check if we have an existing session (user was redirected from email verification)
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         
         if (session) {
           console.log('✅ Found existing session:', session);
