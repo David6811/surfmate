@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { HomePage } from './components/HomePage';
@@ -109,15 +109,36 @@ declare module '@mui/material/styles' {
   }
 }
 
+// Component to handle GitHub Pages SPA routing
+function RouteHandler() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Handle GitHub Pages 404 redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const path = urlParams.get('path');
+    
+    if (path) {
+      // Remove the path parameter and navigate to the intended route
+      window.history.replaceState({}, '', window.location.pathname);
+      navigate(path);
+    }
+  }, [navigate]);
+
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/passwordreset" element={<PasswordReset />} />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/passwordreset" element={<PasswordReset />} />
-        </Routes>
+        <RouteHandler />
       </Router>
     </ThemeProvider>
   );
