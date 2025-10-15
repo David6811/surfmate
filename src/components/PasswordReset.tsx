@@ -43,23 +43,104 @@ export const PasswordReset: React.FC = () => {
   const [passwordUpdateSuccess, setPasswordUpdateSuccess] = useState(false);
 
   useEffect(() => {
-    // Skip token validation for now, focus on page design
     const handlePasswordReset = async () => {
       setLoading(true);
       
-      // Simulate loading for design preview
-      setTimeout(() => {
-        setSuccess(true);
-        setLoading(false);
+      try {
+        // Parse URL parameters for auth tokens
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessToken = urlParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token');
+        const tokenType = urlParams.get('token_type');
+        const type = urlParams.get('type');
         
-        // Mock token data for design preview
-        setTokens({
-          access_token: 'mock_access_token_for_design',
-          refresh_token: 'mock_refresh_token_for_design',
-          token_type: 'bearer',
-          type: 'recovery'
+        console.log('🔗 Password reset URL parameters:', {
+          accessToken: accessToken ? 'present' : 'missing',
+          refreshToken: refreshToken ? 'present' : 'missing',
+          tokenType,
+          type
         });
-      }, 1500);
+        
+        if (!accessToken || !refreshToken) {
+          // Check if we have tokens in the hash (some auth providers use hash)
+          const hashParams = new URLSearchParams(window.location.hash.substring(1));
+          const hashAccessToken = hashParams.get('access_token');
+          const hashRefreshToken = hashParams.get('refresh_token');
+          const hashTokenType = hashParams.get('token_type');
+          const hashType = hashParams.get('type');
+          
+          console.log('🔗 Password reset hash parameters:', {
+            hashAccessToken: hashAccessToken ? 'present' : 'missing',
+            hashRefreshToken: hashRefreshToken ? 'present' : 'missing',
+            hashTokenType,
+            hashType
+          });
+          
+          if (!hashAccessToken || !hashRefreshToken) {
+            setError('Invalid or missing authentication tokens. Please request a new password reset.');
+            setLoading(false);
+            return;
+          }
+          
+          // Use hash tokens
+          const tokens = {
+            access_token: hashAccessToken,
+            refresh_token: hashRefreshToken,
+            token_type: hashTokenType || 'bearer',
+            type: hashType || 'recovery'
+          };
+          
+          setTokens(tokens);
+          
+          // Set the session with Supabase
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: hashAccessToken,
+            refresh_token: hashRefreshToken
+          });
+          
+          if (sessionError) {
+            console.error('❌ Session error:', sessionError);
+            setError(`Authentication failed: ${sessionError.message}`);
+            setLoading(false);
+            return;
+          }
+          
+          console.log('✅ Session established:', data);
+          setSuccess(true);
+          setLoading(false);
+        } else {
+          // Use query tokens
+          const tokens = {
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            token_type: tokenType || 'bearer',
+            type: type || 'recovery'
+          };
+          
+          setTokens(tokens);
+          
+          // Set the session with Supabase
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (sessionError) {
+            console.error('❌ Session error:', sessionError);
+            setError(`Authentication failed: ${sessionError.message}`);
+            setLoading(false);
+            return;
+          }
+          
+          console.log('✅ Session established:', data);
+          setSuccess(true);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('❌ Password reset error:', err);
+        setError(`An error occurred: ${err instanceof Error ? err.message : String(err)}`);
+        setLoading(false);
+      }
     };
 
     handlePasswordReset();
