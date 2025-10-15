@@ -43,23 +43,50 @@ export const PasswordReset: React.FC = () => {
   const [passwordUpdateSuccess, setPasswordUpdateSuccess] = useState(false);
 
   useEffect(() => {
-    // Skip token validation for now, focus on page design
     const handlePasswordReset = async () => {
       setLoading(true);
+      setError(null);
       
-      // Simulate loading for design preview
-      setTimeout(() => {
-        setSuccess(true);
-        setLoading(false);
+      try {
+        // Get URL parameters including hash fragment
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
         
-        // Mock token data for design preview
-        setTokens({
-          access_token: 'mock_access_token_for_design',
-          refresh_token: 'mock_refresh_token_for_design',
-          token_type: 'bearer',
-          type: 'recovery'
-        });
-      }, 1500);
+        // Look for access token in both URL params and hash
+        const accessToken = urlParams.get('access_token') || hashParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token') || hashParams.get('refresh_token');
+        const tokenType = urlParams.get('token_type') || hashParams.get('token_type');
+        const type = urlParams.get('type') || hashParams.get('type');
+        
+        if (accessToken && refreshToken) {
+          // Set the session using the tokens from URL
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error('Session error:', error);
+            setError(`Authentication failed: ${error.message}`);
+          } else {
+            console.log('Session established:', data);
+            setSuccess(true);
+            setTokens({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+              token_type: tokenType || 'bearer',
+              type: type || 'recovery'
+            });
+          }
+        } else {
+          setError('Missing authentication tokens in URL');
+        }
+      } catch (err) {
+        console.error('Error processing tokens:', err);
+        setError(`Failed to process authentication: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setLoading(false);
+      }
     };
 
     handlePasswordReset();
